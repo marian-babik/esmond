@@ -822,6 +822,12 @@ def perfsonar_client_opts(require_src_dest=False, require_event=False,
     parser.add_option('-o', '--output-format', metavar='O_FORMAT',
                       type='string', dest='format', default='human',
                       help='Output format [human, json, csv] (default: human).')
+    parser.add_option('--ssl-cert', metavar='SSL_CERT_PATH',
+                      type='string', dest='ssl_cert',
+                      help='Path to SSL certificate for connections via HTTPS')
+    parser.add_option('--ssl-key', metavar='SSL_KEY_PATH',
+                      type='string', dest='ssl_key',
+                      help='Path to SSL certificate key for connections via HTTPS')
     if require_output:
         parser.add_option('-D', '--output-directory', metavar='DIR',
                           type='string', dest='output_dir', default=os.getcwd(),

@@ -770,7 +770,7 @@ class ApiConnect(object):
     wrn = ApiConnectWarning
 
     def __init__(self, api_url, filters=ApiFilters(), username='', api_key='',  # pylint: disable=too-many-arguments
-                 script_alias='esmond'):
+                 script_alias='esmond', ssl_key=None, ssl_cert=None):
         super(ApiConnect, self).__init__()
         self.api_url = api_url.rstrip("/")
         self.filters = filters
@@ -783,6 +783,11 @@ class ApiConnect(object):
             self.script_alias = script_alias.lstrip('/')
 
         self.request_headers = {}
+        self.enable_ssl = False
+        self.ssl_key = ssl_key
+        self.ssl_cert = ssl_cert
+        if 'https://' in self.api_url and self.ssl_cert and self.ssl_key:
+            self.enable_ssl = True
 
         if username and api_key:
             add_apikey_header(username, api_key, self.request_headers)
@@ -795,10 +800,18 @@ class ApiConnect(object):
         else:
             archive_url = '{0}/{1}/archive/'.format(self.api_url, PS_ROOT)
 
-        r = requests.get(
-            archive_url,
-            params=dict(self.filters.metadata_filters, **self.filters.time_filters),
-            headers=self.request_headers)
+        if self.enable_ssl:
+            r = requests.get(
+                archive_url,
+                params=dict(self.filters.metadata_filters, **self.filters.time_filters),
+                headers=self.request_headers,
+                verify=False,
+                cert=(self.ssl_cert, self.ssl_key))
+        else:
+            r = requests.get(
+                archive_url,
+                params=dict(self.filters.metadata_filters, **self.filters.time_filters),
+                headers=self.request_headers)
 
         self.inspect_request(r)
 
